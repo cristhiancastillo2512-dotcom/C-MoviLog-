@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoreo Operativo AGV Open Market</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #b0c4de;
+            margin: 0;
+            padding: 0;
+        }
+        h2 {
+            text-align: center;
+        }
+        form {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            margin: auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+        .row-inline {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #999;
+            border-radius: 5px;
+            flex: 1;
+        }
+        button {
+            padding: 10px;
+            background: #4682b4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #315f7d;
+        }
+        table {
+            border-collapse: collapse;
+            width: 90%;
+            max-width: 800px;
+            margin: 15px auto;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #4682b4;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>AGV Open Market <small>C.C</small></h2>
+    <form id="driverForm">
+        <div class="row-inline">
+            <div style="flex: 2;">
+                <label for="nombre">Nombre del Conductor</label>
+                <input type="text" id="nombre" required>
+            </div>
+            <div style="flex: 0.8;">
+                <label for="cedula">Cédula</label>
+                <input type="text" id="cedula" required>
+            </div>
+        </div>
+
+        <div class="row">
+            <label for="destino">Destino</label>
+            <input type="text" id="destino" required>
+        </div>
+
+        <div class="row">
+            <label for="fecha">Fecha</label>
+            <input type="text" id="fecha" readonly>
+        </div>
+
+        <div class="row">
+            <label for="hora">Hora</label>
+            <input type="text" id="hora" readonly>
+        </div>
+
+        <div class="row">
+            <label for="adminClave">Administrador - Clave</label>
+            <input type="password" id="adminClave" placeholder="Solo admin" />
+        </div>
+
+        <div class="row-inline">
+            <button type="button" onclick="guardarDatos()">Guardar</button>
+            <button type="button" onclick="borrarDatos()">Borrar Datos</button>
+            <button type="button" onclick="exportarExcel()">Exportar a Excel</button>
+            <button type="button" onclick="verRegistros()">Ver Registros</button>
+        </div>
+    </form>
+
+    <div id="tablaRegistros"></div>
+
+    <script>
+        const CLAVE_ADMIN = "0112"; // Clave única para todas las funciones de admin
+
+        function setFechaHora() {
+            const now = new Date();
+            document.getElementById("fecha").value = now.toLocaleDateString();
+            document.getElementById("hora").value = now.toLocaleTimeString();
+        }
+        setFechaHora();
+
+        function guardarDatos() {
+            const nombre = document.getElementById("nombre").value;
+            const cedula = document.getElementById("cedula").value;
+            const destino = document.getElementById("destino").value;
+            const fecha = document.getElementById("fecha").value;
+            const hora = document.getElementById("hora").value;
+
+            if (!nombre || !cedula || !destino) {
+                alert("Por favor complete todos los campos.");
+                return;
+            }
+
+            let registros = JSON.parse(localStorage.getItem("registros")) || [];
+            registros.push({ nombre, cedula, destino, fecha, hora });
+            localStorage.setItem("registros", JSON.stringify(registros));
+            alert("Registro guardado.");
+        }
+
+        function borrarDatos() {
+            const clave = document.getElementById("adminClave").value;
+            if (clave === CLAVE_ADMIN) {
+                localStorage.removeItem("registros");
+                document.getElementById("tablaRegistros").innerHTML = "";
+                alert("Datos borrados.");
+            } else {
+                alert("Clave incorrecta.");
+            }
+        }
+
+        function exportarExcel() {
+            const clave = document.getElementById("adminClave").value;
+            if (clave !== CLAVE_ADMIN) {
+                alert("Clave incorrecta.");
+                return;
+            }
+
+            let registros = JSON.parse(localStorage.getItem("registros")) || [];
+            if (registros.length === 0) {
+                alert("No hay datos para exportar.");
+                return;
+            }
+
+            let csv = "Nombre,Cédula,Destino,Fecha,Hora\n";
+            registros.forEach(r => {
+                csv += `${r.nombre},${r.cedula},${r.destino},${r.fecha},${r.hora}\n`;
+            });
+
+            let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "registros_conductores.csv";
+            link.click();
+        }
+
+        function verRegistros() {
+            const clave = document.getElementById("adminClave").value;
+            if (clave !== CLAVE_ADMIN) {
+                alert("Clave incorrecta. No puede ver los registros.");
+                return;
+            }
+
+            let registros = JSON.parse(localStorage.getItem("registros")) || [];
+            if (registros.length === 0) {
+                alert("No hay registros guardados.");
+                return;
+            }
+
+            let tabla = `
+                <table>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Cédula</th>
+                        <th>Destino</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                    </tr>
+            `;
+
+            registros.forEach(r => {
+                tabla += `
+                    <tr>
+                        <td>${r.nombre}</td>
+                        <td>${r.cedula}</td>
+                        <td>${r.destino}</td>
+                        <td>${r.fecha}</td>
+                        <td>${r.hora}</td>
+                    </tr>
+                `;
+            });
+
+            tabla += "</table>";
+            document.getElementById("tablaRegistros").innerHTML = tabla;
+        }
+    </script>
+</body>
+</html>
