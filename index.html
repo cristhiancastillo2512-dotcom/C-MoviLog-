@@ -87,6 +87,10 @@
                 <label for="cedula">Cédula</label>
                 <input type="text" id="cedula" required>
             </div>
+            <div style="flex: 0.8;">
+                <label for="placa">Placa</label>
+                <input type="text" id="placa" placeholder="ABC123" required>
+            </div>
         </div>
 
         <div class="row">
@@ -132,17 +136,18 @@
         function guardarDatos() {
             const nombre = document.getElementById("nombre").value;
             const cedula = document.getElementById("cedula").value;
+            const placa = document.getElementById("placa").value;
             const destino = document.getElementById("destino").value;
             const fecha = document.getElementById("fecha").value;
             const hora = document.getElementById("hora").value;
 
-            if (!nombre || !cedula || !destino) {
+            if (!nombre || !cedula || !placa || !destino) {
                 alert("Por favor complete todos los campos.");
                 return;
             }
 
             let registros = JSON.parse(localStorage.getItem("registros")) || [];
-            registros.push({ nombre, cedula, destino, fecha, hora });
+            registros.push({ nombre, cedula, placa, destino, fecha, hora });
             localStorage.setItem("registros", JSON.stringify(registros));
             alert("Registro guardado.");
         }
@@ -171,9 +176,9 @@
                 return;
             }
 
-            let csv = "Nombre,Cédula,Destino,Fecha,Hora\n";
+            let csv = "Nombre,Cédula,Placa,Destino,Fecha,Hora\n";
             registros.forEach(r => {
-                csv += `${r.nombre},${r.cedula},${r.destino},${r.fecha},${r.hora}\n`;
+                csv += `${r.nombre},${r.cedula},${r.placa},${r.destino},${r.fecha},${r.hora}\n`;
             });
 
             let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -201,6 +206,7 @@
                     <tr>
                         <th>Nombre</th>
                         <th>Cédula</th>
+                        <th>Placa</th>
                         <th>Destino</th>
                         <th>Fecha</th>
                         <th>Hora</th>
@@ -212,6 +218,7 @@
                     <tr>
                         <td>${r.nombre}</td>
                         <td>${r.cedula}</td>
+                        <td>${r.placa}</td>
                         <td>${r.destino}</td>
                         <td>${r.fecha}</td>
                         <td>${r.hora}</td>
