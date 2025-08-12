@@ -23,15 +23,16 @@
             margin: auto;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
-        .row {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 10px;
-        }
         .row-inline {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .row-inline > div {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
         label {
             font-weight: bold;
@@ -41,7 +42,8 @@
             padding: 8px;
             border: 1px solid #999;
             border-radius: 5px;
-            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
         }
         button {
             padding: 10px;
@@ -78,39 +80,45 @@
 <body>
     <h2>AGV Open Market <small>C.C</small></h2>
     <form id="driverForm">
+
         <div class="row-inline">
-            <div style="flex: 2;">
+            <div>
                 <label for="nombre">Nombre del Conductor</label>
                 <input type="text" id="nombre" required>
             </div>
-            <div style="flex: 0.8;">
+            <div>
                 <label for="cedula">Cédula</label>
                 <input type="text" id="cedula" required>
             </div>
-            <div style="flex: 0.8;">
+        </div>
+
+        <div class="row-inline">
+            <div>
                 <label for="placa">Placa</label>
                 <input type="text" id="placa" placeholder="ABC123" required>
             </div>
+            <div>
+                <label for="destino">Destino</label>
+                <input type="text" id="destino" required>
+            </div>
         </div>
 
-        <div class="row">
-            <label for="destino">Destino</label>
-            <input type="text" id="destino" required>
+        <div class="row-inline">
+            <div>
+                <label for="fecha">Fecha</label>
+                <input type="text" id="fecha" readonly>
+            </div>
+            <div>
+                <label for="hora">Hora</label>
+                <input type="text" id="hora" readonly>
+            </div>
         </div>
 
-        <div class="row">
-            <label for="fecha">Fecha</label>
-            <input type="text" id="fecha" readonly>
-        </div>
-
-        <div class="row">
-            <label for="hora">Hora</label>
-            <input type="text" id="hora" readonly>
-        </div>
-
-        <div class="row">
-            <label for="adminClave">Administrador - Clave</label>
-            <input type="password" id="adminClave" placeholder="Solo admin" />
+        <div class="row-inline">
+            <div>
+                <label for="adminClave">Administrador - Clave</label>
+                <input type="password" id="adminClave" placeholder="Solo admin" />
+            </div>
         </div>
 
         <div class="row-inline">
@@ -124,7 +132,7 @@
     <div id="tablaRegistros"></div>
 
     <script>
-        const CLAVE_ADMIN = "0112"; // Clave única para todas las funciones de admin
+        const CLAVE_ADMIN = "0112";
 
         function setFechaHora() {
             const now = new Date();
