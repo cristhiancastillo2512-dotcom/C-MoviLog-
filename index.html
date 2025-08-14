@@ -43,7 +43,7 @@
             border: 1px solid #999;
             border-radius: 5px;
             width: 100%;
-            height: 40px; /* Altura uniforme */
+            height: 40px;
             font-size: 14px;
             box-sizing: border-box;
         }
@@ -56,7 +56,7 @@
             font-size: 14px;
             cursor: pointer;
             flex: 1;
-            height: 40px; /* Igual altura que los campos */
+            height: 40px;
         }
         button:hover {
             background: #315f7d;
@@ -120,6 +120,14 @@
             </div>
         </div>
 
+        <!-- NUEVO CAMPO OBSERVACIÓN -->
+        <div class="row-inline">
+            <div>
+                <label for="observacion">Observación</label>
+                <input type="text" id="observacion" placeholder="Comentario u observación">
+            </div>
+        </div>
+
         <div class="row-inline">
             <div>
                 <label for="fecha">Fecha</label>
@@ -149,7 +157,7 @@
     <div id="tablaRegistros"></div>
 
     <script>
-        const CLAVE_ADMIN = "0112"; // clave para admin
+        const CLAVE_ADMIN = "0112";
 
         function setFechaHora() {
             const now = new Date();
@@ -165,6 +173,7 @@
                 placa: document.getElementById("placa").value,
                 destino: document.getElementById("destino").value,
                 llegada: document.getElementById("llegada").value,
+                observacion: document.getElementById("observacion").value,
                 fecha: document.getElementById("fecha").value,
                 hora: document.getElementById("hora").value
             };
@@ -206,6 +215,7 @@
                     <th>Placa</th>
                     <th>Destino</th>
                     <th>Llegada</th>
+                    <th>Observación</th>
                     <th>Fecha</th>
                     <th>Hora</th>
                 </tr>`;
@@ -217,6 +227,7 @@
                     <td>${r.placa}</td>
                     <td>${r.destino}</td>
                     <td>${r.llegada || ''}</td>
+                    <td>${r.observacion || ''}</td>
                     <td>${r.fecha}</td>
                     <td>${r.hora}</td>
                 </tr>`;
@@ -253,9 +264,9 @@
                 return;
             }
 
-            let csv = "Nombre,Cédula,Placa,Destino,Llegada,Fecha,Hora\n";
+            let csv = "Nombre,Cédula,Placa,Destino,Llegada,Observación,Fecha,Hora\n";
             registros.forEach(r => {
-                csv += `${r.nombre},${r.cedula},${r.placa},${r.destino},${r.llegada || ''},${r.fecha},${r.hora}\n`;
+                csv += `${r.nombre},${r.cedula},${r.placa},${r.destino},${r.llegada || ''},${r.observacion || ''},${r.fecha},${r.hora}\n`;
             });
 
             let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
