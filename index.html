@@ -39,10 +39,12 @@
             margin-bottom: 5px;
         }
         input {
-            padding: 8px;
+            padding: 10px;
             border: 1px solid #999;
             border-radius: 5px;
             width: 100%;
+            height: 40px; /* Altura uniforme */
+            font-size: 14px;
             box-sizing: border-box;
         }
         button {
@@ -53,9 +55,17 @@
             border-radius: 5px;
             font-size: 14px;
             cursor: pointer;
+            flex: 1;
+            height: 40px; /* Igual altura que los campos */
         }
         button:hover {
             background: #315f7d;
+        }
+        .row-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
         }
         table {
             border-collapse: collapse;
@@ -105,6 +115,13 @@
 
         <div class="row-inline">
             <div>
+                <label for="llegada">Llegada</label>
+                <input type="text" id="llegada" placeholder="Hora de llegada o nota">
+            </div>
+        </div>
+
+        <div class="row-inline">
+            <div>
                 <label for="fecha">Fecha</label>
                 <input type="text" id="fecha" readonly>
             </div>
@@ -121,7 +138,7 @@
             </div>
         </div>
 
-        <div class="row-inline">
+        <div class="row-buttons">
             <button type="button" onclick="guardarDatos()">Guardar</button>
             <button type="button" onclick="borrarDatos()">Borrar Datos</button>
             <button type="button" onclick="exportarExcel()">Exportar a Excel</button>
@@ -132,7 +149,7 @@
     <div id="tablaRegistros"></div>
 
     <script>
-        const CLAVE_ADMIN = "0112";
+        const CLAVE_ADMIN = "0112"; // clave para admin
 
         function setFechaHora() {
             const now = new Date();
@@ -141,52 +158,104 @@
         }
         setFechaHora();
 
-        function guardarDatos() {
-            const nombre = document.getElementById("nombre").value;
-            const cedula = document.getElementById("cedula").value;
-            const placa = document.getElementById("placa").value;
-            const destino = document.getElementById("destino").value;
-            const fecha = document.getElementById("fecha").value;
-            const hora = document.getElementById("hora").value;
+        async function guardarDatos() {
+            const datos = {
+                nombre: document.getElementById("nombre").value,
+                cedula: document.getElementById("cedula").value,
+                placa: document.getElementById("placa").value,
+                destino: document.getElementById("destino").value,
+                llegada: document.getElementById("llegada").value,
+                fecha: document.getElementById("fecha").value,
+                hora: document.getElementById("hora").value
+            };
 
-            if (!nombre || !cedula || !placa || !destino) {
-                alert("Por favor complete todos los campos.");
+            if (!datos.nombre || !datos.cedula || !datos.placa || !datos.destino) {
+                alert("Por favor complete todos los campos obligatorios.");
                 return;
             }
 
-            let registros = JSON.parse(localStorage.getItem("registros")) || [];
-            registros.push({ nombre, cedula, placa, destino, fecha, hora });
-            localStorage.setItem("registros", JSON.stringify(registros));
-            alert("Registro guardado.");
+            const res = await fetch('/guardar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+
+            const resultado = await res.json();
+            alert(resultado.mensaje);
         }
 
-        function borrarDatos() {
+        async function verRegistros() {
             const clave = document.getElementById("adminClave").value;
-            if (clave === CLAVE_ADMIN) {
-                localStorage.removeItem("registros");
-                document.getElementById("tablaRegistros").innerHTML = "";
-                alert("Datos borrados.");
-            } else {
-                alert("Clave incorrecta.");
+            if (clave !== CLAVE_ADMIN) {
+                alert("Clave incorrecta. No puede ver los registros.");
+                return;
             }
+
+            const res = await fetch('/registros');
+            const registros = await res.json();
+
+            if (registros.length === 0) {
+                alert("No hay registros guardados.");
+                return;
+            }
+
+            let tabla = `<table>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Cédula</th>
+                    <th>Placa</th>
+                    <th>Destino</th>
+                    <th>Llegada</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                </tr>`;
+
+            registros.forEach(r => {
+                tabla += `<tr>
+                    <td>${r.nombre}</td>
+                    <td>${r.cedula}</td>
+                    <td>${r.placa}</td>
+                    <td>${r.destino}</td>
+                    <td>${r.llegada || ''}</td>
+                    <td>${r.fecha}</td>
+                    <td>${r.hora}</td>
+                </tr>`;
+            });
+
+            tabla += "</table>";
+            document.getElementById("tablaRegistros").innerHTML = tabla;
         }
 
-        function exportarExcel() {
+        async function borrarDatos() {
             const clave = document.getElementById("adminClave").value;
             if (clave !== CLAVE_ADMIN) {
                 alert("Clave incorrecta.");
                 return;
             }
 
-            let registros = JSON.parse(localStorage.getItem("registros")) || [];
+            await fetch('/borrar', { method: 'DELETE' });
+            alert('Registros borrados');
+            document.getElementById("tablaRegistros").innerHTML = "";
+        }
+
+        async function exportarExcel() {
+            const clave = document.getElementById("adminClave").value;
+            if (clave !== CLAVE_ADMIN) {
+                alert("Clave incorrecta.");
+                return;
+            }
+
+            const res = await fetch('/registros');
+            const registros = await res.json();
+
             if (registros.length === 0) {
                 alert("No hay datos para exportar.");
                 return;
             }
 
-            let csv = "Nombre,Cédula,Placa,Destino,Fecha,Hora\n";
+            let csv = "Nombre,Cédula,Placa,Destino,Llegada,Fecha,Hora\n";
             registros.forEach(r => {
-                csv += `${r.nombre},${r.cedula},${r.placa},${r.destino},${r.fecha},${r.hora}\n`;
+                csv += `${r.nombre},${r.cedula},${r.placa},${r.destino},${r.llegada || ''},${r.fecha},${r.hora}\n`;
             });
 
             let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -194,48 +263,6 @@
             link.href = URL.createObjectURL(blob);
             link.download = "registros_conductores.csv";
             link.click();
-        }
-
-        function verRegistros() {
-            const clave = document.getElementById("adminClave").value;
-            if (clave !== CLAVE_ADMIN) {
-                alert("Clave incorrecta. No puede ver los registros.");
-                return;
-            }
-
-            let registros = JSON.parse(localStorage.getItem("registros")) || [];
-            if (registros.length === 0) {
-                alert("No hay registros guardados.");
-                return;
-            }
-
-            let tabla = `
-                <table>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Cédula</th>
-                        <th>Placa</th>
-                        <th>Destino</th>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                    </tr>
-            `;
-
-            registros.forEach(r => {
-                tabla += `
-                    <tr>
-                        <td>${r.nombre}</td>
-                        <td>${r.cedula}</td>
-                        <td>${r.placa}</td>
-                        <td>${r.destino}</td>
-                        <td>${r.fecha}</td>
-                        <td>${r.hora}</td>
-                    </tr>
-                `;
-            });
-
-            tabla += "</table>";
-            document.getElementById("tablaRegistros").innerHTML = tabla;
         }
     </script>
 </body>
