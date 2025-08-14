@@ -7,6 +7,7 @@
     --rojo-error: #ff4444;
     --verde-exito: #44aa44;
     --naranja-alerta: #ffaa33;
+    --gris-claro: #f5f5f5;
 }
 
 body {
@@ -109,6 +110,17 @@ textarea {
     resize: vertical;
 }
 
+#observaciones_internas {
+    background-color: var(--gris-claro);
+    border: 1px dashed #aaa;
+    min-height: 80px;
+}
+
+#observaciones_internas:focus {
+    background-color: #fff;
+    border-style: solid;
+}
+
 select {
     appearance: none;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -160,6 +172,14 @@ button:active {
     display: none;
 }
 
+.hint-message {
+    color: #666;
+    font-size: 0.7em;
+    margin-top: 5px;
+    display: block;
+    font-style: italic;
+}
+
 .input-error {
     border-color: var(--rojo-error) !important;
 }
@@ -185,6 +205,13 @@ button:active {
     padding-bottom: 10px;
 }
 
+.info-grid {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 10px 15px;
+    margin-bottom: 15px;
+}
+
 .success-message {
     color: var(--verde-exito);
     font-weight: bold;
@@ -193,6 +220,23 @@ button:active {
 .warning-message {
     color: var(--naranja-alerta);
     font-weight: bold;
+}
+
+.status-message {
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.status-message.entrada {
+    background-color: rgba(0, 51, 102, 0.1);
+    color: var(--azul-oscuro);
+}
+
+.status-message.salida {
+    background-color: rgba(255, 170, 51, 0.1);
+    color: var(--naranja-alerta);
 }
 
 #btnConsultar {
@@ -219,5 +263,14 @@ button:active {
     
     .form-section {
         padding: 15px;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-grid div:nth-child(odd) {
+        font-weight: bold;
+        margin-top: 10px;
     }
 }
