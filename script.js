@@ -1,235 +1,279 @@
+// Configuración e inicialización de Firebase usando CDN
 document.addEventListener('DOMContentLoaded', function() {
-    // Función segura para obtener elementos
-    function getElement(id) {
-        const element = document.getElementById(id);
-        if (!element) {
-            console.error(`Elemento con ID '${id}' no encontrado`);
-            return null;
-        }
-        return element;
-    }
+  // Inicializa Firebase con la configuración de tu proyecto
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJvJ784QAnGTSS3apP-c-2iFLh4ZsEuSI",
+    authDomain: "c-movilong.firebaseapp.com",
+    projectId: "c-movilong",
+    storageBucket: "c-movilong.appspot.com",
+    messagingSenderId: "91828137101",
+    appId: "1:91828137101:web:0678e36a74562c82ba06c4",
+    measurementId: "G-YN5MCGTLGE"
+  };
 
-    // Obtener elementos de forma segura
-    const formulario = getElement('miFormulario');
-    const placaInput = getElement('placa');
-    const marcaSelect = getElement('marca');
-    const modeloInput = getElement('modelo');
-    const propietarioInput = getElement('propietario');
-    const cedulaInput = getElement('cedula');
-    const llegadaInput = getElement('llegada');
-    const btnGuardar = getElement('btnGuardar');
-    const btnConsultar = getElement('btnConsultar');
-    const resultadoDiv = getElement('resultado');
+  // Inicializa Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-    // Verificar elementos esenciales
-    if (!formulario || !placaInput || !btnGuardar || !btnConsultar) {
-        console.error('Elementos esenciales del formulario no encontrados');
-        return;
-    }
+  // Constantes
+  const PLACA_REGEX = /^[A-ZÑ]{3}\d{3}$/;
+  const CEDULA_REGEX = /^\d{7,15}$/;
+  
+  // Cache de elementos DOM
+  const elements = {
+    formulario: getElement('miFormulario'),
+    placaInput: getElement('placa'),
+    marcaSelect: getElement('marca'),
+    modeloInput: getElement('modelo'),
+    propietarioInput: getElement('propietario'),
+    cedulaInput: getElement('cedula'),
+    llegadaInput: getElement('llegada'),
+    btnGuardar: getElement('btnGuardar'),
+    btnConsultar: getElement('btnConsultar'),
+    resultadoDiv: getElement('resultado')
+  };
 
-    // Configurar eventos solo si los elementos existen
-    if (btnGuardar) btnGuardar.addEventListener('click', guardarRegistro);
-    if (btnConsultar) btnConsultar.addEventListener('click', consultarPlaca);
-    if (formulario) formulario.addEventListener('submit', function(e) {
-        e.preventDefault();
-    });
+  // Valida elementos esenciales
+  if (!elements.formulario || !elements.placaInput || !elements.btnGuardar || !elements.btnConsultar) {
+    console.error('Elementos esenciales no encontrados');
+    return;
+  }
 
-    // Configurar fecha y hora actual por defecto
-    function setCurrentDateTime() {
-        if (!llegadaInput) return;
-        const ahora = new Date();
-        const offset = ahora.getTimezoneOffset();
-        const fechaLocal = new Date(ahora.getTime() - (offset * 60 * 1000));
-        llegadaInput.value = fechaLocal.toISOString().slice(0, 16);
-    }
+  // Inicializa la aplicación
+  initApp();
+
+  function initApp() {
+    // Configura event listeners
+    elements.btnGuardar.addEventListener('click', handleSave);
+    elements.btnConsultar.addEventListener('click', handleConsult);
+    elements.formulario.addEventListener('submit', (e) => e.preventDefault());
+    
+    // Establece fecha y hora actual
     setCurrentDateTime();
-
+    
     // Validación en tiempo real
-    if (placaInput) {
-        placaInput.addEventListener('input', function() {
-            validarPlaca(this);
-        });
+    elements.placaInput.addEventListener('input', () => validatePlaca(elements.placaInput));
+    if (elements.cedulaInput) {
+      elements.cedulaInput.addEventListener('input', () => validateCedula(elements.cedulaInput));
+    }
+  }
+
+  // Funciones utilitarias
+  function getElement(id) {
+    const element = document.getElementById(id);
+    if (!element) {
+      console.warn(`Elemento con ID '${id}' no encontrado`);
+    }
+    return element;
+  }
+
+  function setCurrentDateTime() {
+    if (!elements.llegadaInput) return;
+    const now = new Date();
+    const timezoneOffset = now.getTimezoneOffset() * 60000;
+    const localISOTime = new Date(now - timezoneOffset).toISOString().slice(0, 16);
+    elements.llegadaInput.value = localISOTime;
+  }
+
+  // Manejadores de eventos
+  async function handleSave() {
+    if (!validateForm()) {
+      showResult('Por favor complete todos los campos requeridos correctamente', 'error');
+      return;
     }
 
-    // Función para guardar registro
-    async function guardarRegistro() {
-        if (!validarFormulario()) {
-            mostrarResultado('Por favor complete todos los campos requeridos correctamente', 'error');
-            return;
-        }
+    try {
+      const vehicleData = prepareVehicleData();
+      await saveVehicle(vehicleData);
+      
+      showResult('Registro guardado exitosamente', 'success');
+      elements.formulario.reset();
+      setCurrentDateTime();
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      showResult(error.message || 'Error al guardar el registro', 'error');
+    }
+  }
 
-        const datos = {
-            placa: placaInput.value.toUpperCase(),
-            marca: marcaSelect ? marcaSelect.value : '',
-            modelo: modeloInput ? modeloInput.value : '',
-            propietario: propietarioInput ? propietarioInput.value : '',
-            cedula: cedulaInput ? cedulaInput.value : '',
-            llegada: llegadaInput ? llegadaInput.value : '',
-            accion: 'guardar'
-        };
-
-        try {
-            const respuesta = await enviarDatosAlServidor(datos);
-            
-            if (respuesta.success) {
-                mostrarResultado('Registro guardado exitosamente', 'success');
-                if (formulario) formulario.reset();
-                setCurrentDateTime();
-            } else {
-                mostrarResultado(respuesta.message || 'Error al guardar', 'error');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            mostrarResultado('Error de conexión', 'error');
-        }
+  async function handleConsult() {
+    const placa = elements.placaInput.value.trim().toUpperCase();
+    
+    if (!validatePlaca(elements.placaInput)) {
+      return;
     }
 
-    // Función para consultar placa
-    async function consultarPlaca() {
-        const placa = placaInput.value.trim().toUpperCase();
-        
-        if (placa.length === 0) {
-            mostrarError(placaInput, 'Ingrese una placa');
-            return;
-        }
-
-        if (!/^[A-ZÑ]{3}\d{3}$/.test(placa)) {
-            mostrarError(placaInput, 'Formato inválido');
-            return;
-        }
-
-        try {
-            const respuesta = await consultarDatosEnServidor(placa);
-            
-            if (respuesta.success) {
-                mostrarDatosVehiculo(respuesta.data);
-            } else {
-                mostrarResultado(respuesta.message || 'No encontrado', 'warning');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            mostrarResultado('Error de conexión', 'error');
-        }
+    try {
+      const vehicleData = await getVehicle(placa);
+      displayVehicleInfo(vehicleData);
+    } catch (error) {
+      console.error('Error al consultar:', error);
+      showResult(error.message || 'Error al recuperar datos del vehículo', 'error');
     }
+  }
 
-    // Función para mostrar datos
-    function mostrarDatosVehiculo(datos) {
-        if (!resultadoDiv) return;
-        
-        resultadoDiv.innerHTML = `
-            <h2>Información del Vehículo</h2>
-            <div class="info-grid">
-                <div><strong>Placa:</strong></div>
-                <div>${datos.placa}</div>
-                <div><strong>Marca:</strong></div>
-                <div>${datos.marca}</div>
-                <div><strong>Modelo:</strong></div>
-                <div>${datos.modelo}</div>
-                <div><strong>Propietario:</strong></div>
-                <div>${datos.propietario}</div>
-                <div><strong>Cédula:</strong></div>
-                <div>${datos.cedula}</div>
-            </div>
-        `;
-        resultadoDiv.style.display = 'block';
-    }
+  // Preparación de datos
+  function prepareVehicleData() {
+    return {
+      placa: elements.placaInput.value.toUpperCase(),
+      marca: elements.marcaSelect?.value || '',
+      modelo: elements.modeloInput?.value || '',
+      propietario: elements.propietarioInput?.value || '',
+      cedula: elements.cedulaInput?.value || '',
+      llegada: elements.llegadaInput?.value || new Date().toISOString(),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+  }
 
-    // Función para mostrar resultados
-    function mostrarResultado(mensaje, tipo) {
-        if (!resultadoDiv) return;
-        resultadoDiv.innerHTML = `<p class="${tipo}-message">${mensaje}</p>`;
-        resultadoDiv.style.display = 'block';
+  // Funciones de validación
+  function validateForm() {
+    let isValid = true;
+    
+    if (!validatePlaca(elements.placaInput)) isValid = false;
+    if (elements.marcaSelect && !elements.marcaSelect.value) {
+      showError(elements.marcaSelect, 'Seleccione una marca');
+      isValid = false;
     }
+    if (elements.modeloInput && !elements.modeloInput.value.trim()) {
+      showError(elements.modeloInput, 'Ingrese el modelo');
+      isValid = false;
+    }
+    if (elements.propietarioInput && !elements.propietarioInput.value.trim()) {
+      showError(elements.propietarioInput, 'Ingrese el nombre del propietario');
+      isValid = false;
+    }
+    if (elements.cedulaInput && !validateCedula(elements.cedulaInput)) {
+      isValid = false;
+    }
+    
+    return isValid;
+  }
 
-    // Función para validar formulario
-    function validarFormulario() {
-        let valido = true;
-        
-        if (!validarPlaca(placaInput)) valido = false;
-        if (marcaSelect && marcaSelect.value === '') {
-            mostrarError(marcaSelect, 'Seleccione marca');
-            valido = false;
-        }
-        if (modeloInput && modeloInput.value.trim() === '') {
-            mostrarError(modeloInput, 'Ingrese modelo');
-            valido = false;
-        }
-        if (propietarioInput && propietarioInput.value.trim() === '') {
-            mostrarError(propietarioInput, 'Ingrese propietario');
-            valido = false;
-        }
-        if (cedulaInput && (cedulaInput.value.trim() === '' || !/^\d+$/.test(cedulaInput.value.trim()))) {
-            mostrarError(cedulaInput, 'Cédula inválida');
-            valido = false;
-        }
-        
-        return valido;
+  function validatePlaca(input) {
+    if (!input) return false;
+    
+    const placa = input.value.toUpperCase();
+    
+    if (!placa) {
+      showError(input, 'Placa requerida');
+      return false;
     }
+    
+    if (!PLACA_REGEX.test(placa)) {
+      showError(input, 'Formato: ABC123');
+      return false;
+    }
+    
+    clearError(input);
+    input.value = placa;
+    return true;
+  }
 
-    // Función para validar placa
-    function validarPlaca(input) {
-        if (!input) return false;
-        
-        const placa = input.value.toUpperCase();
-        const placaRegex = /^[A-ZÑ]{3}\d{3}$/;
-        
-        if (placa === '') {
-            mostrarError(input, 'Placa requerida');
-            return false;
-        }
-        
-        if (!placaRegex.test(placa)) {
-            mostrarError(input, 'Formato: ABC123');
-            return false;
-        }
-        
-        limpiarError(input);
-        input.value = placa;
-        return true;
+  function validateCedula(input) {
+    if (!input) return true; // Campo opcional
+    
+    const cedula = input.value.trim();
+    
+    if (!cedula) {
+      showError(input, 'Número de cédula requerido');
+      return false;
     }
+    
+    if (!CEDULA_REGEX.test(cedula)) {
+      showError(input, 'Número de cédula inválido (7-15 dígitos)');
+      return false;
+    }
+    
+    clearError(input);
+    return true;
+  }
 
-    // Funciones para manejo de errores
-    function mostrarError(input, mensaje) {
-        if (!input) return;
-        input.classList.add('input-error');
-        const errorElement = input.nextElementSibling;
-        if (errorElement && errorElement.classList.contains('error-message')) {
-            errorElement.textContent = mensaje;
-            errorElement.style.display = 'block';
-        }
+  // Funciones de UI
+  function showError(input, message) {
+    if (!input) return;
+    input.classList.add('input-error');
+    const errorElement = input.nextElementSibling;
+    if (errorElement?.classList.contains('error-message')) {
+      errorElement.textContent = message;
+      errorElement.style.display = 'block';
     }
+  }
 
-    function limpiarError(input) {
-        if (!input) return;
-        input.classList.remove('input-error');
-        const errorElement = input.nextElementSibling;
-        if (errorElement && errorElement.classList.contains('error-message')) {
-            errorElement.style.display = 'none';
-        }
+  function clearError(input) {
+    if (!input) return;
+    input.classList.remove('input-error');
+    const errorElement = input.nextElementSibling;
+    if (errorElement?.classList.contains('error-message')) {
+      errorElement.style.display = 'none';
     }
+  }
 
-    // Funciones simuladas para conexión con servidor
-    async function enviarDatosAlServidor(datos) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return {
-            success: true,
-            message: 'Datos guardados',
-            data: datos
-        };
-    }
+  function showResult(message, type) {
+    if (!elements.resultadoDiv) return;
+    elements.resultadoDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+    elements.resultadoDiv.style.display = 'block';
+  }
 
-    async function consultarDatosEnServidor(placa) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const vehiculos = [{
-            placa: placa,
-            marca: 'Marca Ejemplo',
-            modelo: 'Modelo Ejemplo',
-            propietario: 'Propietario Ejemplo',
-            cedula: '123456789'
-        }];
-        const vehiculo = vehiculos.find(v => v.placa === placa);
-        return vehiculo ? 
-            { success: true, data: vehiculo } : 
-            { success: false, message: 'No encontrado' };
+  function displayVehicleInfo(data) {
+    if (!elements.resultadoDiv) return;
+    
+    if (!data) {
+      showResult('Vehículo no encontrado', 'warning');
+      return;
     }
+    
+    elements.resultadoDiv.innerHTML = `
+      <div class="vehicle-info">
+        <h2>Información del Vehículo</h2>
+        <div class="info-grid">
+          ${createInfoRow('Placa', data.placa)}
+          ${createInfoRow('Marca', data.marca)}
+          ${createInfoRow('Modelo', data.modelo)}
+          ${createInfoRow('Propietario', data.propietario)}
+          ${createInfoRow('Cédula', data.cedula)}
+          ${createInfoRow('Fecha de Entrada', formatDateTime(data.llegada))}
+        </div>
+      </div>
+    `;
+    elements.resultadoDiv.style.display = 'block';
+  }
+
+  function createInfoRow(label, value) {
+    return `
+      <div><strong>${label}:</strong></div>
+      <div>${value || 'N/A'}</div>
+    `;
+  }
+
+  function formatDateTime(isoString) {
+    if (!isoString) return 'N/A';
+    const date = new Date(isoString);
+    return date.toLocaleString();
+  }
+
+  // Operaciones con Firebase
+  async function saveVehicle(vehicleData) {
+    try {
+      await db.collection("vehicles").doc(vehicleData.placa).set(vehicleData);
+      return vehicleData;
+    } catch (error) {
+      console.error("Error al guardar vehículo:", error);
+      throw new Error("Error al guardar datos del vehículo");
+    }
+  }
+
+  async function getVehicle(placa) {
+    try {
+      const docRef = db.collection("vehicles").doc(placa);
+      const docSnap = await docRef.get();
+      
+      if (docSnap.exists) {
+        return docSnap.data();
+      } else {
+        throw new Error("Vehículo no encontrado");
+      }
+    } catch (error) {
+      console.error("Error al obtener vehículo:", error);
+      throw error;
+    }
+  }
 });
