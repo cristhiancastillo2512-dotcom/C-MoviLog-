@@ -7,296 +7,227 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #b0c4de;
-      margin: 0;
-      padding: 0;
+      background: #f4f4f9;
+      padding: 20px;
     }
     h2 {
       text-align: center;
+      color: #333;
     }
     form {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 500px;
-      margin: auto;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    }
-    .row-inline {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-    .row-inline > div {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     label {
+      display: block;
+      margin-top: 10px;
       font-weight: bold;
-      margin-bottom: 5px;
     }
-    input {
-      padding: 10px;
-      border: 1px solid #999;
-      border-radius: 5px;
+    input, textarea {
       width: 100%;
-      height: 40px;
-      font-size: 14px;
-      box-sizing: border-box;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    input[readonly] {
+      background: #e9ecef;
+      cursor: not-allowed;
     }
     button {
+      margin-top: 15px;
       padding: 10px;
-      background: #4682b4;
-      color: white;
+      width: 100%;
       border: none;
-      border-radius: 5px;
-      font-size: 14px;
+      border-radius: 6px;
       cursor: pointer;
-      flex: 1;
-      height: 40px;
+      font-weight: bold;
     }
-    button:hover {
-      background: #315f7d;
-    }
-    .row-buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
+    #guardar { background: #28a745; color: white; }
+    #verRegistros { background: #007bff; color: white; }
+    #exportar { background: #ffc107; color: black; }
+    #borrar { background: #dc3545; color: white; }
     table {
+      width: 100%;
       border-collapse: collapse;
-      width: 90%;
-      max-width: 800px;
-      margin: 15px auto;
-      background: white;
-      border-radius: 10px;
+      margin-top: 20px;
+      background: #fff;
+      border-radius: 12px;
       overflow: hidden;
     }
     th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
+      border: 1px solid #ccc;
+      padding: 10px;
       text-align: center;
     }
     th {
-      background-color: #4682b4;
+      background: #007bff;
       color: white;
     }
   </style>
 </head>
 <body>
-  <h2>AGV Open Market <small>C.C</small></h2>
-  <form id="driverForm">
-    <div class="row-inline">
-      <div>
-        <label for="nombre">Nombre del Conductor</label>
-        <input type="text" id="nombre" required>
-      </div>
-      <div>
-        <label for="cedula">Cédula</label>
-        <input type="text" id="cedula" required>
-      </div>
-    </div>
+  <h2>Monitoreo Operativo AGV Open Market</h2>
 
-    <div class="row-inline">
-      <div>
-        <label for="placa">Placa</label>
-        <input type="text" id="placa" placeholder="ABC123" required>
-      </div>
-      <div>
-        <label for="destino">Destino</label>
-        <input type="text" id="destino" required>
-      </div>
-    </div>
+  <form id="registroForm">
+    <label>Nombre:</label>
+    <input type="text" id="nombre" required>
 
-    <div class="row-inline">
-      <div>
-        <label for="llegada">Llegada</label>
-        <input type="text" id="llegada" placeholder="NOMBRE DEL DESTINO">
-      </div>
-    </div>
+    <label>Cédula:</label>
+    <input type="text" id="cedula" required>
 
-    <div class="row-inline">
-      <div>
-        <label for="observacion">Observación</label>
-        <input type="text" id="observacion" placeholder="Comentario u observación">
-      </div>
-    </div>
+    <label>Placa:</label>
+    <input type="text" id="placa" required>
 
-    <div class="row-inline">
-      <div>
-        <label for="fecha">Fecha</label>
-        <input type="text" id="fecha" readonly>
-      </div>
-      <div>
-        <label for="hora">Hora</label>
-        <input type="text" id="hora" readonly>
-      </div>
-    </div>
+    <label>Destino:</label>
+    <input type="text" id="destino" required>
 
-    <div class="row-inline">
-      <div>
-        <label for="adminClave">Administrador - Clave</label>
-        <input type="password" id="adminClave" placeholder="Solo admin" />
-      </div>
-    </div>
+    <label>Llegada:</label>
+    <input type="text" id="llegada" required>
 
-    <div class="row-buttons">
-      <button type="button" onclick="guardarDatos()">Guardar</button>
-      <button type="button" onclick="borrarDatos()">Borrar Datos</button>
-      <button type="button" onclick="exportarExcel()">Exportar a Excel</button>
-      <button type="button" onclick="verRegistros()">Ver Registros</button>
-    </div>
+    <label>Observación:</label>
+    <textarea id="observacion"></textarea>
+
+    <label>Fecha:</label>
+    <input type="date" id="fecha" readonly>
+
+    <label>Hora:</label>
+    <input type="time" id="hora" readonly>
+
+    <label>Clave de Administrador:</label>
+    <input type="password" id="claveAdmin">
+
+    <button type="button" id="guardar">Guardar</button>
+    <button type="button" id="verRegistros">Ver Registros</button>
+    <button type="button" id="exportar">Exportar a Excel</button>
+    <button type="button" id="borrar">Borrar Registros</button>
   </form>
 
   <div id="tablaRegistros"></div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-  <script>
-    // ⚡ Configura Firebase (cambia por tus credenciales)
     const firebaseConfig = {
-      apiKey: "TU_API_KEY",
-      authDomain: "TU_PROYECTO.firebaseapp.com",
-      projectId: "TU_PROYECTO",
-      storageBucket: "TU_PROYECTO.appspot.com",
-      messagingSenderId: "ID",
-      appId: "APP_ID"
+      apiKey: "AIzaSyCJvJ784QAnGTSS3apP-c-2iFLh4ZsEuSI",
+      authDomain: "c-movilong.firebaseapp.com",
+      projectId: "c-movilong",
+      storageBucket: "c-movilong.firebasestorage.app",
+      messagingSenderId: "91828137101",
+      appId: "1:91828137101:web:0678e36a74562c82ba06c4",
+      measurementId: "G-YN5MCGTLGE"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const ADMIN_KEY = "0112";
 
-    const CLAVE_ADMIN = "0112";
-
+    // Poner fecha y hora automáticas al cargar la página
     function setFechaHora() {
       const now = new Date();
-      document.getElementById("fecha").value = now.toLocaleDateString();
-      document.getElementById("hora").value = now.toLocaleTimeString();
+      const fecha = now.toISOString().split("T")[0];
+      const hora = now.toTimeString().slice(0,5);
+      document.getElementById("fecha").value = fecha;
+      document.getElementById("hora").value = hora;
     }
     setFechaHora();
+    setInterval(setFechaHora, 1000); // refresca cada minuto
 
-    // 🔹 Guardar datos en Firestore
-    async function guardarDatos() {
+    // Guardar datos
+    document.getElementById("guardar").addEventListener("click", async () => {
       const datos = {
-        nombre: document.getElementById("nombre").value.trim(),
-        cedula: document.getElementById("cedula").value.trim(),
-        placa: document.getElementById("placa").value.trim(),
-        destino: document.getElementById("destino").value.trim(),
-        llegada: document.getElementById("llegada").value.trim(),
-        observacion: document.getElementById("observacion").value.trim(),
+        nombre: document.getElementById("nombre").value,
+        cedula: document.getElementById("cedula").value,
+        placa: document.getElementById("placa").value,
+        destino: document.getElementById("destino").value,
+        llegada: document.getElementById("llegada").value,
+        observacion: document.getElementById("observacion").value,
         fecha: document.getElementById("fecha").value,
         hora: document.getElementById("hora").value,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        timestamp: new Date()
       };
 
-      if (!datos.nombre || !datos.cedula || !datos.placa || !datos.destino) {
-        alert("⚠️ Complete todos los campos obligatorios.");
+      try {
+        await addDoc(collection(db, "registrosConductores"), datos);
+        alert("✅ Registro guardado en la nube");
+        document.getElementById("registroForm").reset();
+        setFechaHora(); // volver a poner fecha/hora
+      } catch (error) {
+        console.error("Error al guardar:", error);
+      }
+    });
+
+    // Ver registros
+    document.getElementById("verRegistros").addEventListener("click", () => {
+      const clave = document.getElementById("claveAdmin").value;
+      if (clave !== ADMIN_KEY) {
+        alert("❌ Clave incorrecta");
         return;
       }
 
-      await db.collection("registrosConductores").add(datos);
-
-      alert("✅ Datos guardados en la nube.");
-      document.getElementById("driverForm").reset();
-      setFechaHora();
-    }
-
-    // 🔹 Mostrar registros en tiempo real
-    function verRegistros() {
-      const clave = document.getElementById("adminClave").value;
-      if (clave !== CLAVE_ADMIN) {
-        alert("❌ Clave incorrecta. No puede ver los registros.");
-        return;
-      }
-
-      db.collection("registrosConductores").orderBy("timestamp", "desc")
-        .onSnapshot(snapshot => {
-          if (snapshot.empty) {
-            document.getElementById("tablaRegistros").innerHTML = "<p style='text-align:center;color:red'>⚠️ No hay registros guardados.</p>";
-            return;
-          }
-
-          let tabla = `<table>
-            <tr>
-              <th>Nombre</th>
-              <th>Cédula</th>
-              <th>Placa</th>
-              <th>Destino</th>
-              <th>Llegada</th>
-              <th>Observación</th>
-              <th>Fecha</th>
-              <th>Hora</th>
-            </tr>`;
-
-          snapshot.forEach(doc => {
-            const r = doc.data();
-            tabla += `<tr>
-              <td>${r.nombre}</td>
-              <td>${r.cedula}</td>
-              <td>${r.placa}</td>
-              <td>${r.destino}</td>
-              <td>${r.llegada || ''}</td>
-              <td>${r.observacion || ''}</td>
-              <td>${r.fecha}</td>
-              <td>${r.hora}</td>
-            </tr>`;
-          });
-
-          tabla += "</table>";
-          document.getElementById("tablaRegistros").innerHTML = tabla;
+      const q = query(collection(db, "registrosConductores"), orderBy("timestamp", "desc"));
+      onSnapshot(q, (snapshot) => {
+        let tabla = "<table><tr><th>Nombre</th><th>Cédula</th><th>Placa</th><th>Destino</th><th>Llegada</th><th>Observación</th><th>Fecha</th><th>Hora</th></tr>";
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          tabla += `<tr>
+            <td>${data.nombre}</td>
+            <td>${data.cedula}</td>
+            <td>${data.placa}</td>
+            <td>${data.destino}</td>
+            <td>${data.llegada}</td>
+            <td>${data.observacion}</td>
+            <td>${data.fecha}</td>
+            <td>${data.hora}</td>
+          </tr>`;
         });
-    }
+        tabla += "</table>";
+        document.getElementById("tablaRegistros").innerHTML = tabla;
+      });
+    });
 
-    // 🔹 Borrar registros
-    async function borrarDatos() {
-      const clave = document.getElementById("adminClave").value;
-      if (clave !== CLAVE_ADMIN) {
-        alert("❌ Clave incorrecta.");
+    // Exportar registros
+    document.getElementById("exportar").addEventListener("click", async () => {
+      const clave = document.getElementById("claveAdmin").value;
+      if (clave !== ADMIN_KEY) {
+        alert("❌ Clave incorrecta");
         return;
       }
 
-      const snapshot = await db.collection("registrosConductores").get();
-      const batch = db.batch();
-
-      snapshot.forEach(doc => batch.delete(doc.ref));
-      await batch.commit();
-
-      alert("✅ Registros borrados de la nube.");
-      document.getElementById("tablaRegistros").innerHTML = "";
-    }
-
-    // 🔹 Exportar registros a CSV
-    async function exportarExcel() {
-      const clave = document.getElementById("adminClave").value;
-      if (clave !== CLAVE_ADMIN) {
-        alert("❌ Clave incorrecta.");
-        return;
-      }
-
-      const snapshot = await db.collection("registrosConductores").orderBy("timestamp", "desc").get();
-      if (snapshot.empty) {
-        alert("⚠️ No hay datos para exportar.");
-        return;
-      }
-
+      const snapshot = await getDocs(collection(db, "registrosConductores"));
       let csv = "Nombre,Cédula,Placa,Destino,Llegada,Observación,Fecha,Hora\n";
       snapshot.forEach(doc => {
-        const r = doc.data();
-        csv += `${r.nombre},${r.cedula},${r.placa},${r.destino},${r.llegada || ''},${r.observacion || ''},${r.fecha},${r.hora}\n`;
+        const data = doc.data();
+        csv += `${data.nombre},${data.cedula},${data.placa},${data.destino},${data.llegada},${data.observacion},${data.fecha},${data.hora}\n`;
       });
 
-      let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      let link = document.createElement("a");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = "registros_conductores.csv";
       link.click();
-    }
+    });
+
+    // Borrar registros
+    document.getElementById("borrar").addEventListener("click", async () => {
+      const clave = document.getElementById("claveAdmin").value;
+      if (clave !== ADMIN_KEY) {
+        alert("❌ Clave incorrecta");
+        return;
+      }
+
+      const snapshot = await getDocs(collection(db, "registrosConductores"));
+      for (const documento of snapshot.docs) {
+        await deleteDoc(doc(db, "registrosConductores", documento.id));
+      }
+      alert("🗑️ Todos los registros fueron eliminados");
+    });
   </script>
 </body>
 </html>
