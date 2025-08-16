@@ -1,281 +1,282 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoreo Operativo AGV Open Market</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #b0c4de;
-            margin: 0;
-            padding: 0;
-        }
-        h2 {
-            text-align: center;
-        }
-        form {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-            margin: auto;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-        .row-inline {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
-        }
-        .row-inline > div {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        input {
-            padding: 10px;
-            border: 1px solid #999;
-            border-radius: 5px;
-            width: 100%;
-            height: 40px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 10px;
-            background: #4682b4;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            cursor: pointer;
-            flex: 1;
-            height: 40px;
-        }
-        button:hover {
-            background: #315f7d;
-        }
-        .row-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-        table {
-            border-collapse: collapse;
-            width: 90%;
-            max-width: 800px;
-            margin: 15px auto;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #4682b4;
-            color: white;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoreo Operativo AGV Open Market</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #b0c4de;
+      margin: 0;
+      padding: 0;
+    }
+    h2 {
+      text-align: center;
+    }
+    form {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+    .row-inline {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .row-inline > div {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input {
+      padding: 10px;
+      border: 1px solid #999;
+      border-radius: 5px;
+      width: 100%;
+      height: 40px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px;
+      background: #4682b4;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      flex: 1;
+      height: 40px;
+    }
+    button:hover {
+      background: #315f7d;
+    }
+    .row-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 90%;
+      max-width: 800px;
+      margin: 15px auto;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #4682b4;
+      color: white;
+    }
+  </style>
 </head>
 <body>
-    <h2>AGV Open Market <small>C.C</small></h2>
-    <form id="driverForm">
+  <h2>AGV Open Market <small>C.C</small></h2>
+  <form id="driverForm">
+    <div class="row-inline">
+      <div>
+        <label for="nombre">Nombre del Conductor</label>
+        <input type="text" id="nombre" required>
+      </div>
+      <div>
+        <label for="cedula">Cédula</label>
+        <input type="text" id="cedula" required>
+      </div>
+    </div>
 
-        <div class="row-inline">
-            <div>
-                <label for="nombre">Nombre del Conductor</label>
-                <input type="text" id="nombre" required>
-            </div>
-            <div>
-                <label for="cedula">Cédula</label>
-                <input type="text" id="cedula" required>
-            </div>
-        </div>
+    <div class="row-inline">
+      <div>
+        <label for="placa">Placa</label>
+        <input type="text" id="placa" placeholder="ABC123" required>
+      </div>
+      <div>
+        <label for="destino">Destino</label>
+        <input type="text" id="destino" required>
+      </div>
+    </div>
 
-        <div class="row-inline">
-            <div>
-                <label for="placa">Placa</label>
-                <input type="text" id="placa" placeholder="ABC123" required>
-            </div>
-            <div>
-                <label for="destino">Destino</label>
-                <input type="text" id="destino" required>
-            </div>
-        </div>
+    <div class="row-inline">
+      <div>
+        <label for="llegada">Llegada</label>
+        <input type="text" id="llegada" placeholder="NOMBRE DEL DESTINO">
+      </div>
+    </div>
 
-        <div class="row-inline">
-            <div>
-                <label for="llegada">Llegada</label>
-                <input type="text" id="llegada" placeholder="NOMBRE DEL DESTINO">
-            </div>
-        </div>
+    <div class="row-inline">
+      <div>
+        <label for="observacion">Observación</label>
+        <input type="text" id="observacion" placeholder="Comentario u observación">
+      </div>
+    </div>
 
-        <!-- NUEVO CAMPO OBSERVACIÓN -->
-        <div class="row-inline">
-            <div>
-                <label for="observacion">Observación</label>
-                <input type="text" id="observacion" placeholder="Comentario u observación">
-            </div>
-        </div>
+    <div class="row-inline">
+      <div>
+        <label for="fecha">Fecha</label>
+        <input type="text" id="fecha" readonly>
+      </div>
+      <div>
+        <label for="hora">Hora</label>
+        <input type="text" id="hora" readonly>
+      </div>
+    </div>
 
-        <div class="row-inline">
-            <div>
-                <label for="fecha">Fecha</label>
-                <input type="text" id="fecha" readonly>
-            </div>
-            <div>
-                <label for="hora">Hora</label>
-                <input type="text" id="hora" readonly>
-            </div>
-        </div>
+    <div class="row-inline">
+      <div>
+        <label for="adminClave">Administrador - Clave</label>
+        <input type="password" id="adminClave" placeholder="Solo admin" />
+      </div>
+    </div>
 
-        <div class="row-inline">
-            <div>
-                <label for="adminClave">Administrador - Clave</label>
-                <input type="password" id="adminClave" placeholder="Solo admin" />
-            </div>
-        </div>
+    <div class="row-buttons">
+      <button type="button" onclick="guardarDatos()">Guardar</button>
+      <button type="button" onclick="borrarDatos()">Borrar Datos</button>
+      <button type="button" onclick="exportarExcel()">Exportar a Excel</button>
+      <button type="button" onclick="verRegistros()">Ver Registros</button>
+    </div>
+  </form>
 
-        <div class="row-buttons">
-            <button type="button" onclick="guardarDatos()">Guardar</button>
-            <button type="button" onclick="borrarDatos()">Borrar Datos</button>
-            <button type="button" onclick="exportarExcel()">Exportar a Excel</button>
-            <button type="button" onclick="verRegistros()">Ver Registros</button>
-        </div>
-    </form>
+  <div id="tablaRegistros"></div>
 
-    <div id="tablaRegistros"></div>
+  <script>
+    const CLAVE_ADMIN = "0112";
 
-    <script>
-        const CLAVE_ADMIN = "0112";
+    function setFechaHora() {
+      const now = new Date();
+      document.getElementById("fecha").value = now.toLocaleDateString();
+      document.getElementById("hora").value = now.toLocaleTimeString();
+    }
+    setFechaHora();
 
-        function setFechaHora() {
-            const now = new Date();
-            document.getElementById("fecha").value = now.toLocaleDateString();
-            document.getElementById("hora").value = now.toLocaleTimeString();
-        }
-        setFechaHora();
+    function getRegistros() {
+      return JSON.parse(localStorage.getItem("registrosConductores") || "[]");
+    }
 
-        async function guardarDatos() {
-            const datos = {
-                nombre: document.getElementById("nombre").value,
-                cedula: document.getElementById("cedula").value,
-                placa: document.getElementById("placa").value,
-                destino: document.getElementById("destino").value,
-                llegada: document.getElementById("llegada").value,
-                observacion: document.getElementById("observacion").value,
-                fecha: document.getElementById("fecha").value,
-                hora: document.getElementById("hora").value
-            };
+    function guardarRegistros(registros) {
+      localStorage.setItem("registrosConductores", JSON.stringify(registros));
+    }
 
-            if (!datos.nombre || !datos.cedula || !datos.placa || !datos.destino) {
-                alert("Por favor complete todos los campos obligatorios.");
-                return;
-            }
+    function guardarDatos() {
+      const datos = {
+        nombre: document.getElementById("nombre").value.trim(),
+        cedula: document.getElementById("cedula").value.trim(),
+        placa: document.getElementById("placa").value.trim(),
+        destino: document.getElementById("destino").value.trim(),
+        llegada: document.getElementById("llegada").value.trim(),
+        observacion: document.getElementById("observacion").value.trim(),
+        fecha: document.getElementById("fecha").value,
+        hora: document.getElementById("hora").value
+      };
 
-            const res = await fetch('/guardar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datos)
-            });
+      if (!datos.nombre || !datos.cedula || !datos.placa || !datos.destino) {
+        alert("⚠️ Complete todos los campos obligatorios.");
+        return;
+      }
 
-            const resultado = await res.json();
-            alert(resultado.mensaje);
-        }
+      const registros = getRegistros();
+      registros.push(datos);
+      guardarRegistros(registros);
 
-        async function verRegistros() {
-            const clave = document.getElementById("adminClave").value;
-            if (clave !== CLAVE_ADMIN) {
-                alert("Clave incorrecta. No puede ver los registros.");
-                return;
-            }
+      alert("✅ Datos guardados correctamente.");
+      document.getElementById("driverForm").reset();
+      setFechaHora();
+    }
 
-            const res = await fetch('/registros');
-            const registros = await res.json();
+    function verRegistros() {
+      const clave = document.getElementById("adminClave").value;
+      if (clave !== CLAVE_ADMIN) {
+        alert("❌ Clave incorrecta. No puede ver los registros.");
+        return;
+      }
 
-            if (registros.length === 0) {
-                alert("No hay registros guardados.");
-                return;
-            }
+      const registros = getRegistros();
 
-            let tabla = `<table>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Cédula</th>
-                    <th>Placa</th>
-                    <th>Destino</th>
-                    <th>Llegada</th>
-                    <th>Observación</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                </tr>`;
+      if (registros.length === 0) {
+        document.getElementById("tablaRegistros").innerHTML = "<p style='text-align:center;color:red'>⚠️ No hay registros guardados.</p>";
+        return;
+      }
 
-            registros.forEach(r => {
-                tabla += `<tr>
-                    <td>${r.nombre}</td>
-                    <td>${r.cedula}</td>
-                    <td>${r.placa}</td>
-                    <td>${r.destino}</td>
-                    <td>${r.llegada || ''}</td>
-                    <td>${r.observacion || ''}</td>
-                    <td>${r.fecha}</td>
-                    <td>${r.hora}</td>
-                </tr>`;
-            });
+      let tabla = `<table>
+        <tr>
+          <th>Nombre</th>
+          <th>Cédula</th>
+          <th>Placa</th>
+          <th>Destino</th>
+          <th>Llegada</th>
+          <th>Observación</th>
+          <th>Fecha</th>
+          <th>Hora</th>
+        </tr>`;
 
-            tabla += "</table>";
-            document.getElementById("tablaRegistros").innerHTML = tabla;
-        }
+      registros.forEach(r => {
+        tabla += `<tr>
+          <td>${r.nombre}</td>
+          <td>${r.cedula}</td>
+          <td>${r.placa}</td>
+          <td>${r.destino}</td>
+          <td>${r.llegada || ''}</td>
+          <td>${r.observacion || ''}</td>
+          <td>${r.fecha}</td>
+          <td>${r.hora}</td>
+        </tr>`;
+      });
 
-        async function borrarDatos() {
-            const clave = document.getElementById("adminClave").value;
-            if (clave !== CLAVE_ADMIN) {
-                alert("Clave incorrecta.");
-                return;
-            }
+      tabla += "</table>";
+      document.getElementById("tablaRegistros").innerHTML = tabla;
+    }
 
-            await fetch('/borrar', { method: 'DELETE' });
-            alert('Registros borrados');
-            document.getElementById("tablaRegistros").innerHTML = "";
-        }
+    function borrarDatos() {
+      const clave = document.getElementById("adminClave").value;
+      if (clave !== CLAVE_ADMIN) {
+        alert("❌ Clave incorrecta.");
+        return;
+      }
 
-        async function exportarExcel() {
-            const clave = document.getElementById("adminClave").value;
-            if (clave !== CLAVE_ADMIN) {
-                alert("Clave incorrecta.");
-                return;
-            }
+      localStorage.removeItem("registrosConductores");
+      document.getElementById("tablaRegistros").innerHTML = "";
+      alert("✅ Registros borrados correctamente.");
+    }
 
-            const res = await fetch('/registros');
-            const registros = await res.json();
+    function exportarExcel() {
+      const clave = document.getElementById("adminClave").value;
+      if (clave !== CLAVE_ADMIN) {
+        alert("❌ Clave incorrecta.");
+        return;
+      }
 
-            if (registros.length === 0) {
-                alert("No hay datos para exportar.");
-                return;
-            }
+      const registros = getRegistros();
+      if (registros.length === 0) {
+        alert("⚠️ No hay datos para exportar.");
+        return;
+      }
 
-            let csv = "Nombre,Cédula,Placa,Destino,Llegada,Observación,Fecha,Hora\n";
-            registros.forEach(r => {
-                csv += `${r.nombre},${r.cedula},${r.placa},${r.destino},${r.llegada || ''},${r.observacion || ''},${r.fecha},${r.hora}\n`;
-            });
+      let csv = "Nombre,Cédula,Placa,Destino,Llegada,Observación,Fecha,Hora\n";
+      registros.forEach(r => {
+        csv += `${r.nombre},${r.cedula},${r.placa},${r.destino},${r.llegada || ''},${r.observacion || ''},${r.fecha},${r.hora}\n`;
+      });
 
-            let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-            let link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "registros_conductores.csv";
-            link.click();
-        }
-    </script>
+      let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      let link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "registros_conductores.csv";
+      link.click();
+    }
+  </script>
 </body>
 </html>
-
