@@ -154,7 +154,24 @@
 
   <div id="tablaRegistros"></div>
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
   <script>
+    // ⚡ Configura Firebase (cambia por tus credenciales)
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_PROYECTO.firebaseapp.com",
+      projectId: "TU_PROYECTO",
+      storageBucket: "TU_PROYECTO.appspot.com",
+      messagingSenderId: "ID",
+      appId: "APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     const CLAVE_ADMIN = "0112";
 
     function setFechaHora() {
@@ -164,15 +181,8 @@
     }
     setFechaHora();
 
-    function getRegistros() {
-      return JSON.parse(localStorage.getItem("registrosConductores") || "[]");
-    }
-
-    function guardarRegistros(registros) {
-      localStorage.setItem("registrosConductores", JSON.stringify(registros));
-    }
-
-    function guardarDatos() {
+    // 🔹 Guardar datos en Firestore
+    async function guardarDatos() {
       const datos = {
         nombre: document.getElementById("nombre").value.trim(),
         cedula: document.getElementById("cedula").value.trim(),
@@ -181,7 +191,8 @@
         llegada: document.getElementById("llegada").value.trim(),
         observacion: document.getElementById("observacion").value.trim(),
         fecha: document.getElementById("fecha").value,
-        hora: document.getElementById("hora").value
+        hora: document.getElementById("hora").value,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
       };
 
       if (!datos.nombre || !datos.cedula || !datos.placa || !datos.destino) {
@@ -189,15 +200,14 @@
         return;
       }
 
-      const registros = getRegistros();
-      registros.push(datos);
-      guardarRegistros(registros);
+      await db.collection("registrosConductores").add(datos);
 
-      alert("✅ Datos guardados correctamente.");
+      alert("✅ Datos guardados en la nube.");
       document.getElementById("driverForm").reset();
       setFechaHora();
     }
 
+    // 🔹 Mostrar registros en tiempo real
     function verRegistros() {
       const clave = document.getElementById("adminClave").value;
       if (clave !== CLAVE_ADMIN) {
@@ -205,69 +215,79 @@
         return;
       }
 
-      const registros = getRegistros();
+      db.collection("registrosConductores").orderBy("timestamp", "desc")
+        .onSnapshot(snapshot => {
+          if (snapshot.empty) {
+            document.getElementById("tablaRegistros").innerHTML = "<p style='text-align:center;color:red'>⚠️ No hay registros guardados.</p>";
+            return;
+          }
 
-      if (registros.length === 0) {
-        document.getElementById("tablaRegistros").innerHTML = "<p style='text-align:center;color:red'>⚠️ No hay registros guardados.</p>";
-        return;
-      }
+          let tabla = `<table>
+            <tr>
+              <th>Nombre</th>
+              <th>Cédula</th>
+              <th>Placa</th>
+              <th>Destino</th>
+              <th>Llegada</th>
+              <th>Observación</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+            </tr>`;
 
-      let tabla = `<table>
-        <tr>
-          <th>Nombre</th>
-          <th>Cédula</th>
-          <th>Placa</th>
-          <th>Destino</th>
-          <th>Llegada</th>
-          <th>Observación</th>
-          <th>Fecha</th>
-          <th>Hora</th>
-        </tr>`;
+          snapshot.forEach(doc => {
+            const r = doc.data();
+            tabla += `<tr>
+              <td>${r.nombre}</td>
+              <td>${r.cedula}</td>
+              <td>${r.placa}</td>
+              <td>${r.destino}</td>
+              <td>${r.llegada || ''}</td>
+              <td>${r.observacion || ''}</td>
+              <td>${r.fecha}</td>
+              <td>${r.hora}</td>
+            </tr>`;
+          });
 
-      registros.forEach(r => {
-        tabla += `<tr>
-          <td>${r.nombre}</td>
-          <td>${r.cedula}</td>
-          <td>${r.placa}</td>
-          <td>${r.destino}</td>
-          <td>${r.llegada || ''}</td>
-          <td>${r.observacion || ''}</td>
-          <td>${r.fecha}</td>
-          <td>${r.hora}</td>
-        </tr>`;
-      });
-
-      tabla += "</table>";
-      document.getElementById("tablaRegistros").innerHTML = tabla;
+          tabla += "</table>";
+          document.getElementById("tablaRegistros").innerHTML = tabla;
+        });
     }
 
-    function borrarDatos() {
+    // 🔹 Borrar registros
+    async function borrarDatos() {
       const clave = document.getElementById("adminClave").value;
       if (clave !== CLAVE_ADMIN) {
         alert("❌ Clave incorrecta.");
         return;
       }
 
-      localStorage.removeItem("registrosConductores");
+      const snapshot = await db.collection("registrosConductores").get();
+      const batch = db.batch();
+
+      snapshot.forEach(doc => batch.delete(doc.ref));
+      await batch.commit();
+
+      alert("✅ Registros borrados de la nube.");
       document.getElementById("tablaRegistros").innerHTML = "";
-      alert("✅ Registros borrados correctamente.");
     }
 
-    function exportarExcel() {
+    // 🔹 Exportar registros a CSV
+    async function exportarExcel() {
       const clave = document.getElementById("adminClave").value;
       if (clave !== CLAVE_ADMIN) {
         alert("❌ Clave incorrecta.");
         return;
       }
 
-      const registros = getRegistros();
-      if (registros.length === 0) {
+      const snapshot = await db.collection("registrosConductores").orderBy("timestamp", "desc").get();
+      if (snapshot.empty) {
         alert("⚠️ No hay datos para exportar.");
         return;
       }
 
       let csv = "Nombre,Cédula,Placa,Destino,Llegada,Observación,Fecha,Hora\n";
-      registros.forEach(r => {
+      snapshot.forEach(doc => {
+        const r = doc.data();
         csv += `${r.nombre},${r.cedula},${r.placa},${r.destino},${r.llegada || ''},${r.observacion || ''},${r.fecha},${r.hora}\n`;
       });
 
